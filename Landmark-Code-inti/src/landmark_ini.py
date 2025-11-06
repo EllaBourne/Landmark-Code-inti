@@ -2,11 +2,10 @@ import mediapipe as mp
 import math
 import cv2
 import numpy as np
+import json
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose 
-
-
 
 def to_px(lm, w , h):
     return np.array([lm.x * w, lm.y * h], dtype=float)
@@ -67,6 +66,49 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             if R_angle:
                 cv2.putText(image, f"R: {R_angle:.1f}°", (int(R_el[0]+20), int(R_el[1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2, cv2.LINE_AA)
+            
+            # Write to JSON
+            # Make sure to change the relative path to the correct position data.
+            path = "./position_data.json"
+            json_obj = {
+                "rightShoulderPosition":{
+                    "x":R_sh[0],
+                    "y":R_sh[1],
+                    "z":float(0)
+                },
+                "leftShoulderPosition":{
+                    "x":L_sh[0],
+                    "y":L_sh[1],
+                    "z":float(0)
+                },
+                "rightElbowPosition":{
+                    "x":R_el[0],
+                    "y":R_el[1],
+                    "z":float(0)
+                },
+                "leftElbowPosition":{
+                    "x":L_el[0],
+                    "y":L_el[1],
+                    "z":float(0)
+                },
+                "rightWristPosition":{
+                    "x":R_wr[0],
+                    "y":R_wr[1],
+                    "z":float(0)
+                },
+                "leftWristPosition":{
+                    "x":L_wr[0],
+                    "y":L_wr[1],
+                    "z":float(0)
+                }
+            }
+            json_str = json.dumps(json_obj)
+
+            try:
+                with open(path, "w") as f:
+                    f.write(json_str)
+            except:
+                pass     
 
         cv2.imshow('Elbow Angle Display', image)
         if cv2.waitKey(10) & 0xFF == ord('q'):
