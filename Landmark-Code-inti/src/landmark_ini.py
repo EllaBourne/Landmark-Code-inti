@@ -43,8 +43,14 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             lms = results.pose_landmarks.landmark
 
             # landmark indices
+            NOSE = 0                        # nose (head)
             L_SH, L_EL, L_WR = 11, 13, 15   # left shoulder, elbow, wrist
             R_SH, R_EL, R_WR = 12, 14, 16   # right shoulder, elbow, wrist
+            L_HP, L_KN, L_AN = 23, 25, 27   # left hip, knee, ankle
+            R_HP, R_KN, R_AN = 24, 26, 28   # right hip, knee ankle
+            
+            # head
+            head = to_px(lms[NOSE], w, h)
 
             # left arm
             L_sh = to_px(lms[L_SH], w, h)
@@ -55,6 +61,16 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             R_sh = to_px(lms[R_SH], w, h)
             R_el = to_px(lms[R_EL], w, h)
             R_wr = to_px(lms[R_WR], w, h)
+
+            # left leg
+            L_hp = to_px(lms[L_HP], w, h)
+            L_kn = to_px(lms[L_KN], w, h)
+            L_an = to_px(lms[L_AN], w, h)
+
+            # right leg
+            R_hp = to_px(lms[R_HP], w, h)
+            R_kn = to_px(lms[R_KN], w, h)
+            R_an = to_px(lms[R_AN], w, h)
 
             # compute angles
             L_angle = angle_3pt(L_sh, L_el, L_wr)
@@ -69,36 +85,71 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             
             # Write to JSON
             # Make sure to change the relative path to the correct position data.
-            path = "./position_data.json"
+            path = "C:/Users/nicho/Capstone G16 3DCV Demo/Assets/StreamingAssets/position_data.json"
             json_obj = {
+                "headPosition":{
+                    "x":head[0],
+                    "y":h - head[1],
+                    "z":float(0)
+                },
                 "rightShoulderPosition":{
                     "x":R_sh[0],
-                    "y":R_sh[1],
+                    "y":h - R_sh[1],
                     "z":float(0)
                 },
                 "leftShoulderPosition":{
                     "x":L_sh[0],
-                    "y":L_sh[1],
+                    "y":h - L_sh[1],
                     "z":float(0)
                 },
                 "rightElbowPosition":{
                     "x":R_el[0],
-                    "y":R_el[1],
+                    "y":h - R_el[1],
                     "z":float(0)
                 },
                 "leftElbowPosition":{
                     "x":L_el[0],
-                    "y":L_el[1],
+                    "y":h - L_el[1],
                     "z":float(0)
                 },
                 "rightWristPosition":{
                     "x":R_wr[0],
-                    "y":R_wr[1],
+                    "y":h - R_wr[1],
                     "z":float(0)
                 },
                 "leftWristPosition":{
                     "x":L_wr[0],
-                    "y":L_wr[1],
+                    "y":h - L_wr[1],
+                    "z":float(0)
+                },
+                "rightHipPosition":{
+                    "x":R_hp[0],
+                    "y":h - R_hp[1],
+                    "z":float(0)
+                },
+                "leftHipPosition":{
+                    "x":L_hp[0],
+                    "y":h - L_hp[1],
+                    "z":float(0)
+                },
+                "rightKneePosition":{
+                    "x":R_kn[0],
+                    "y":h - R_kn[1],
+                    "z":float(0)
+                },
+                "leftKneePosition":{
+                    "x":L_kn[0],
+                    "y":h - L_kn[1],
+                    "z":float(0)
+                },
+                "rightAnklePosition":{
+                    "x":R_an[0],
+                    "y":h - R_an[1],
+                    "z":float(0)
+                },
+                "leftAnklePosition":{
+                    "x":L_an[0],
+                    "y":h - L_an[1],
                     "z":float(0)
                 }
             }
