@@ -85,7 +85,7 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             
             # Write to JSON
             # Make sure to change the relative path to the correct position data.
-            path = "C:/Users/nicho/Capstone G16 3DCV Demo/Assets/StreamingAssets/position_data.json"
+            path = "./position_data.json"
             json_obj = {
                 "headPosition":{
                     "x":head[0],
