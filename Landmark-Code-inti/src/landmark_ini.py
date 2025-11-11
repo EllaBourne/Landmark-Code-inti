@@ -7,9 +7,11 @@ import json
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose 
 
+## to_px - convert pose landmarks to coordinate system with provided width and height
 def to_px(lm, w , h):
     return np.array([lm.x * w, lm.y * h], dtype=float)
 
+## angle_between - give the angle between two vectors.
 def angle_between(v1, v2):
     v1 = np.asarray(v1, dtype = float)
     v2 = np.asarray(v2, dtype=float)
@@ -19,18 +21,22 @@ def angle_between(v1, v2):
     c = np.clip(np.dot(v1,v2)/(n1 * n2), -1.0,1.0)
     return math.degrees(math.acos(c))
 
+## angle_3pt - give the angle of two line segments with b as the point connecting both
 def angle_3pt(a,b,c):
     return angle_between(a-b,c-b)
 
+# Start opencv video capture
 cap = cv2.VideoCapture(0)
 
-
+# Begin Pose Tracking
 with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as pose:
+    # Continuous frame updating
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
+        # Convert colorspace to work with landmark processing
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -76,6 +82,7 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             L_angle = angle_3pt(L_sh, L_el, L_wr)
             R_angle = angle_3pt(R_sh, R_el, R_wr)
 
+            # Display angles in window
             if L_angle:
                 cv2.putText(image, f"L: {L_angle:.1f}°", (int(L_el[0]+20), int(L_el[1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2, cv2.LINE_AA)
@@ -83,7 +90,7 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
                 cv2.putText(image, f"R: {R_angle:.1f}°", (int(R_el[0]+20), int(R_el[1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2, cv2.LINE_AA)
             
-            # Write to JSON
+            # Covnert to JSON string
             # Make sure to change the relative path to the correct position data.
             path = "./position_data.json"
             json_obj = {
@@ -155,15 +162,18 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             }
             json_str = json.dumps(json_obj)
 
+            # Try-except to prevent simultaneous file access.
             try:
                 with open(path, "w") as f:
                     f.write(json_str)
             except:
                 pass     
 
+        # Update window        
         cv2.imshow('Elbow Angle Display', image)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
-        
+
+# Cleanup        
 cap.release()
 cv2.destroyAllWindows()
