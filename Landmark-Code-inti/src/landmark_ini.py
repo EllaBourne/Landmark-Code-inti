@@ -7,7 +7,7 @@ import json
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose 
 
-## to_px - convert pose landmarks to coordinate system with provided width and height
+## to_px - convert pose landmarks to coordinate system with provided width and height.
 def to_px(lm, w , h):
     return np.array([lm.x * w, lm.y * h], dtype=float)
 
@@ -92,7 +92,7 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             
             # Covnert to JSON string
             # Make sure to change the relative path to the correct position data.
-            path = "./position_data.json"
+            path = "C:/Users/nicho/Capstone G16 3DCV Demo/Assets/StreamingAssets/position_data.json"
             json_obj = {
                 "headPosition":{
                     "x":head[0],
