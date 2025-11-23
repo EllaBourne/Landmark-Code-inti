@@ -7,7 +7,7 @@ import json
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose 
 
-## to_px - convert pose landmarks to coordinate system with provided width and height
+## to_px - convert pose landmarks to coordinate system with provided width and height.
 def to_px(lm, w , h):
     return np.array([lm.x * w, lm.y * h], dtype=float)
 
@@ -27,6 +27,9 @@ def angle_3pt(a,b,c):
 
 # Start opencv video capture
 cap = cv2.VideoCapture(0)
+# Set capture settings
+print("Width: "+str(cap.get(cv2.CAP_PROP_FRAME_WIDTH))+", Height: "+str(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))+"\n")
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)
 
 # Begin Pose Tracking
 with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as pose:
@@ -84,15 +87,15 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
 
             # Display angles in window
             if L_angle:
-                cv2.putText(image, f"L: {L_angle:.1f}°", (int(L_el[0]+20), int(L_el[1])),
+                cv2.putText(image, f"L: {L_angle:.1f}deg", (int(L_el[0]+20), int(L_el[1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2, cv2.LINE_AA)
             if R_angle:
-                cv2.putText(image, f"R: {R_angle:.1f}°", (int(R_el[0]+20), int(R_el[1])),
+                cv2.putText(image, f"R: {R_angle:.1f}deg", (int(R_el[0]+20), int(R_el[1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2, cv2.LINE_AA)
             
             # Covnert to JSON string
             # Make sure to change the relative path to the correct position data.
-            path = "./position_data.json"
+            path = "C:/Users/nicho/Capstone G16 3DCV Demo/Assets/StreamingAssets/position_data.json"
             json_obj = {
                 "headPosition":{
                     "x":head[0],
