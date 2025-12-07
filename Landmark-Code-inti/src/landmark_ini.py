@@ -31,6 +31,10 @@ cap = cv2.VideoCapture(0)
 print("Width: "+str(cap.get(cv2.CAP_PROP_FRAME_WIDTH))+", Height: "+str(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))+"\n")
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)
 
+smooth_L = None
+smooth_R = None
+alpha = 0.2
+
 # Begin Pose Tracking
 with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as pose:
     # Continuous frame updating
@@ -82,9 +86,47 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
             R_an = to_px(lms[R_AN], w, h)
 
             # compute angles
-            L_angle = angle_3pt(L_sh, L_el, L_wr)
-            R_angle = angle_3pt(R_sh, R_el, R_wr)
+            L_raw = angle_3pt(L_sh, L_el, L_wr)
+            R_raw = angle_3pt(R_sh, R_el, R_wr)
+            
+            if L_raw is not None:
+                smooth_L = L_raw if smooth_L is None else alpha * L_raw + (1 - alpha) * smooth_L
+            if R_raw is not None:
+                smooth_R = R_raw if smooth_R is None else alpha * R_raw + (1 - alpha) * smooth_R
 
+            L_angle = smooth_L
+            R_angle = smooth_R
+            
+            
+            TARGET = 90               # target elbow angle
+            TOL = 7                   # allowed range
+            GOOD_COLOR = (0, 255, 0)  
+            BAD_COLOR = (0, 0, 255)   
+
+           
+            if L_angle:
+                if abs(L_angle - TARGET) <= TOL:
+                    feedback_L = "Good"
+                    color_L = GOOD_COLOR
+                else:
+                    feedback_L = "Adjust"
+                    color_L = BAD_COLOR
+
+                cv2.putText(image, feedback_L, (int(L_el[0]+20), int(L_el[1] - 25)),
+                            cv2.FONT_HERSHEY_DUPLEX, 0.6, color_L, 2, cv2.LINE_AA)
+
+            if R_angle:
+                if abs(R_angle - TARGET) <= TOL:
+                    feedback_R = "Good"
+                    color_R = GOOD_COLOR
+                else:
+                    feedback_R = "Adjust"
+                    color_R = BAD_COLOR
+
+                cv2.putText(image, feedback_R, (int(R_el[0]+20), int(R_el[1] - 25)),
+                            cv2.FONT_HERSHEY_DUPLEX, 0.6, color_R, 2, cv2.LINE_AA)
+                        
+            
             # Display angles in window
             if L_angle:
                 cv2.putText(image, f"L: {L_angle:.1f}deg", (int(L_el[0]+20), int(L_el[1])),
@@ -180,3 +222,7 @@ with mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.1) as 
 # Cleanup        
 cap.release()
 cv2.destroyAllWindows()
+
+
+
+
